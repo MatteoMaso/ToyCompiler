@@ -1,0 +1,37 @@
+/* FILE DI PROVA */
+
+/*commento non dovrebbe essere stampato */
+
+/* /*<< ciao */ */  
+
+
+if(){
+ANDAnd
+}
+else(){}
+ff
+
+if(){
+
+ff
+} else if(){
+ff<<<ffg
+
+}<= !ciao
+
+cycle(){
+
+rkjgergoerk
+
+}
+
+
+/* parole che non deve beccare */
+
+falseif if
+gnoifd ifw wififf
+
+elseif
+
+
+

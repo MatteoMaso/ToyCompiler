@@ -1,0 +1,121 @@
+SPECIFICHE DEL LINGUAGGIO
+
+MANDATORY: Singola istruzione per riga, istruzioni concluse con ;
+I separatori ( , \t) non hanno limitazioni di numero.
+DICHIARAZONE: Variabili contengono almeno una lettera e dev'essere all'inizio, solo lettere minuscole, eventuali numeri sono ammessi ma nn all inizio.
+Caratteri speciali ammessi, non all'inizio o alla fine del nome della variabile, sono: _ $ @ -
+es. pippo_2;
+ASSEGNAZIONE: Tramite l'operatore =
+es. pluto_1 = 56;
+INSTRUZIONI ARITMETICHE:  +, -, *, /, uso di parentesi tonde e basta
+ISTRUZIONI DI CONFRONTO: <, >, <= , >=, ==, !=, !, |, && con parentesi tonde e basta
+ISTRUZIONE CONDIZIONALE: if - elseif - else
+costrutto: if (condition) {
+        istruzioni;
+}
+
+       else {
+
+
+}
+ISTRUZIONE DI ITERAZIONE: 
+
+                 cycle (condition){
+    istruzioni;
+}
+
+ISTRUZIONE DI STAMPA: display(numero intero); 
+              cosplay(numero intero); //stampa e poi va capo
+
+KEYWORDS: cycle, if, else,  goto(non è concesso)
+
+COMMENTI: /*   … */
+
+
+
+
+
+
+
+
+
+
+
+
+ESPRESSIONI REGOLARI:
+
+digit         [0-9]
+digitnz        [1-9]        \\numeri positivi
+uc        [A-Z]        \\lettere maiuscole
+lc        [a-z]        \\lettere minuscole
+letter        [uc|lc]        \\lettere minuscole e maiuscole
+ws           [ \t\n]
+eoi        [;]        \\end of instruction
+sc        [_$@-]        \\special characters
+
+variabile     {lc}({lc}*|{digit}*|{sc}*)*
+number      {digitnz}|{digit}*    \\numero non zero iniziale
+letterale    {(+|-)?|number}
+
+if        {“if”}
+else        {“else”}
+cycle         {“cycle”}
+goto        {“goto”}        //per escluderne l’uso
+
+startcomment  {“/*”}
+endcomment   {“*/”}
+
+comment    {startcomment}(.){endcomment}
+
+
+TRANSLATION RULES:
+
+{comment}    {} \\non fa niente se becca un commento
+{if}        { printf(“Keyword: %s\n”, yytext); }
+{else}        { printf(“Keyword: %s\n”, yytext); }
+{cycle}        { printf(“Keyword: %s\n”, yytext); }
+{.}        {} \\non fa nulla con gli altri caratteri 
+
+
+
+
+
+
+
+
+
+
+
+
+digit         [0-9]
+digitnz        [1-9]        
+uc        [A-Z]        
+lc        [a-z]
+letter        [uc|lc]        
+ws           [ \t\n]
+eoi        [;]        
+sc        [_$@-]        
+
+variabile     {lc}({lc}*|{digit}*|{sc}*)*
+number      {digitnz}|{digit}*    
+letterale    {(+|-)?|number}
+
+if        {“if”}
+else        {“else”}
+cycle         {“cycle”}
+goto        {“goto”}    
+
+startcomment  {“/*”}
+endcomment   {“*/”}
+
+comment    {startcomment}(.){endcomment}
+
+%%
+
+{comment}    {} 
+{if}        { printf(“Keyword: %s\n”, yytext); }
+{else}        { printf(“Keyword: %s\n”, yytext); }
+{cycle}        { printf(“Keyword: %s\n”, yytext); }
+{.}        {} 
+
+

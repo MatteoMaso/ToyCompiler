@@ -1,0 +1,48 @@
+%{
+#include <stdio.h>
+%}
+
+digit     [0-9]
+digitnz   [1-9]   	 
+uc        [A-Z]   	 
+lc    	  [a-z]   	 
+letter	  {uc}|{lc}   	 
+ws    	  [ \t\n]
+eoi   	  [;]   	 
+sc    	  [_$@-]   	 
+
+
+id          {lc}({letter}*|{digit}*|{sc}*)*
+number      {digitnz}|{digit}*    
+letterale   (+|-)?|{number}
+
+startcomment    "/*"
+endcomment	"*/"
+
+comment   	{startcomment}(.)*{endcomment}
+
+
+%% /*---------------------------------------------------REGOLE------------------------------------*/
+
+{comment}	                        	{}
+
+
+if|else|cycle					{ printf("<keyword,%s>\n", yytext); }
+
+"+"|"-"|"*"|"/"					{ printf("<operator,%s>\n", yytext); }
+
+"{"|"}"|"("|")"					{ printf("<delimiter,%s>\n", yytext); }
+
+{id}		 				{ printf("<id,%s>\n",yytext);}
+
+{eoi}						{ printf("<eoi,%s>\n", yytext);}
+
+"<"|">"|"<="|">="|"=="|"!="|"!"|"AND"|"OR" 	{printf("<relop,%s>\n",yytext);}
+
+.|{ws}    	                                {}
+
+%% /*----------------------------------------------------MAIN-------------------------------------*/
+
+int main() {
+    yylex();
+}
