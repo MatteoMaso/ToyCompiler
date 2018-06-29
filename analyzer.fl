@@ -1,5 +1,8 @@
+%option noyywrap
 %{
+#include <stdlib.h>
 #include <stdio.h>
+#include "boolean.tab.h"
 %}
 
 digit     [0-9]
@@ -29,6 +32,9 @@ comment   	{startcomment}(.)*{endcomment}
 
 if|else|cycle					{ printf("<keyword,%s>\n", yytext); }
 
+{number}					{yylval.val = atof(yytext);
+							return NUMBER;}
+
 "+"|"-"|"*"|"/"					{ printf("<operator,%s>\n", yytext); }
 
 "{"|"}"|"("|")"					{ printf("<delimiter,%s>\n", yytext); }
@@ -37,12 +43,17 @@ if|else|cycle					{ printf("<keyword,%s>\n", yytext); }
 
 {eoi}						{ printf("<eoi,%s>\n", yytext);}
 
-"<"|">"|"<="|">="|"=="|"!="|"!"|"AND"|"OR" 	{printf("<relop,%s>\n",yytext);}
-
-.|{ws}    	                                {}
+"&&" 						{ return AND; }
+"||"						{ return OR; }
+"!" 						{ return NOT; }
+"<" 						{ return LT; }
+"<=" 						{ return LE; }
+">" 						{ return GT; }
+">=" 						{ return GE; }
+"==" 						{ return EQ; }
+"!="						{ return NE; }
+.|{ws}    	                                {return yytext[0];}
 
 %% /*----------------------------------------------------MAIN-------------------------------------*/
 
-int main() {
-    yylex();
-}
+
