@@ -2,17 +2,16 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
-#include "boolean.tab.h"
 %}
 
 digit     [0-9]
-digitnz   [1-9]   	 
-uc        [A-Z]   	 
-lc    	  [a-z]   	 
-letter	  {uc}|{lc}   	 
-ws    	  [ \t\n]
-eoi   	  [;]   	 
-sc    	  [_$@-]   	 
+digitnz   [1-9]   
+uc        [A-Z]    
+lc        [a-z]    
+letter	  {uc}|{lc} 
+ws        [ \t\n]
+eoi       [;]
+sc        [_$@-]
 
 
 id          {lc}({letter}*|{digit}*|{sc}*)*
@@ -22,12 +21,12 @@ letterale   (+|-)?|{number}
 startcomment    "/*"
 endcomment	"*/"
 
-comment   	{startcomment}(.)*{endcomment}
+comment         {startcomment}(.)*{endcomment}
 
 
 %% /*---------------------------------------------------REGOLE------------------------------------*/
 
-{comment}	                        	{}
+{comment}					{}
 
 
 if|else|cycle					{ printf("<keyword,%s>\n", yytext); }
@@ -39,20 +38,20 @@ if|else|cycle					{ printf("<keyword,%s>\n", yytext); }
 
 "{"|"}"|"("|")"					{ printf("<delimiter,%s>\n", yytext); }
 
-{id}		 				{ printf("<id,%s>\n",yytext);}
+{id}                                            { printf("<id,%s>\n",yytext);}
 
 {eoi}						{ printf("<eoi,%s>\n", yytext);}
 
-"&&" 						{ return AND; }
+"&&"                                            { return AND; }
 "||"						{ return OR; }
-"!" 						{ return NOT; }
-"<" 						{ return LT; }
-"<=" 						{ return LE; }
-">" 						{ return GT; }
-">=" 						{ return GE; }
-"==" 						{ return EQ; }
+"!"                                             { return NOT; }
+"<"                                             { return LT; }
+"<="                                            { return LE; }
+">"                                             { return GT; }
+">="						{ return GE; }
+"=="						{ return EQ; }
 "!="						{ return NE; }
-.|{ws}    	                                {return yytext[0];}
+.|{ws}                                          {return yytext[0];}
 
 %% /*----------------------------------------------------MAIN-------------------------------------*/
 
