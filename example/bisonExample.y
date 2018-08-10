@@ -59,6 +59,8 @@ expr : 		expr '+' expr { $$ = $1 + $3; }
 
 
 %%
+
+
 int main() {
 	if (yyparse() != 0)
 		fprintf(stderr, "Abnormal exit\n");

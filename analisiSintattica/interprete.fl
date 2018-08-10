@@ -1,0 +1,41 @@
+%option noyywrap
+%{
+#include <stdlib.h>
+#include "interprete.h"
+%}
+
+digit     [0-9]
+digitnz   [1-9]   
+uc        [A-Z]    
+lc        [a-z]    
+letter	  {uc}|{lc} 
+ws        [ \t\n]
+eoi       [;]
+sc        [_$@-]
+
+id          {lc}({letter}*|{digit}*|{sc}*)*
+number      {digitnz}|{digit}*    
+letterale   [+|-]?|{number}
+
+startcomment    "/*"
+endcomment	"*/"
+
+comment         {startcomment}(.)*{endcomment}
+
+fract [0-9]+\.?|[0-9]*\.[0-9]+
+
+%% /*---------------------------------------------------REGOLE------------------------------------*/
+
+{comment}	{}
+
+[ \t]		{ /* skip blanks */ }
+"&&"		{ return AND; }
+"||"		{ return OR; }
+"!"		{ return NOT; }
+"<"		{ return LT; }
+"<="		{ return LE; }
+">"		{ return GT; }
+">="		{ return GE; }
+"=="		{ return EQ; }
+{letterale}	{ yylval.val = atof(yytext); return LETTERAL; }
+\n|.		{ return yytext[0]; }

@@ -1,0 +1,21 @@
+%option noyywrap
+%{
+#include <stdlib.h>
+#include "parser.h"
+%}
+
+fract [0-9]+\.?|[0-9]*\.[0-9]+
+
+%%
+
+[ \t]	{ /* skip blanks */ }
+"&&"	{ return AND; }
+"||"	{ return OR; }
+"!"	{ return NOT; }
+"<"	{ return LT; }
+"<="	{ return LE; }
+">"	{ return GT; }
+">="	{ return GE; }
+"=="	{ return EQ; }
+{fract}	{ yylval.val = atof(yytext); return FRACT; }
+\n|.	{ return yytext[0]; }

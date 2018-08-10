@@ -2,6 +2,7 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include "provaBison.tab.h"
 %}
 
 digit     [0-9]
