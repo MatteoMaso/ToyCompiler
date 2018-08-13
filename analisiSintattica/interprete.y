@@ -26,7 +26,7 @@
 
 %%
 lines	: lines bexpr '\n'	{ printf("%d\n", $2); }
-	| lines expr '\n'	{ printf("Lines expr aritmetica:"); }
+	| lines expr '\n'	{ printf("Lines expr aritmetica: %f\n", $2); }
 	| lines '\n'
 	| /* empty */
 	;
