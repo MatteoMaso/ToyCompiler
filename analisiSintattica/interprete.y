@@ -15,10 +15,8 @@
 %type	<bool>	comp
 %type 	<bool>	bexpr
 
-%left	+ 
-%left   -
-%left	* 
-%left   /
+%left	'+' '-'
+%left	'*' '/'
 %right  UMINUS
 %left	OR
 %left	AND
@@ -28,6 +26,7 @@
 
 %%
 lines	: lines bexpr '\n'	{ printf("%d\n", $2); }
+	| lines expr '\n'	{ printf("Lines expr aritmetica:"); }
 	| lines '\n'
 	| /* empty */
 	;
@@ -47,12 +46,12 @@ comp	: expr LT expr		{ if ($1 < $3) $$ = 1; else $$ = 0; }
 //	| '(' comp ')'		{ $$ = $2; }
 	;
 
-expr	: expr + expr		{ $$ = $1 + $3; }
-	| expr - expr		{ $$ = $1 - $3; }
-	| expr / expr		{ $$ = $1 / $3; }
-	| expr * expr		{ $$ = $1 * $3; }
+expr	: expr '+' expr		{ $$ = $1 + $3; }
+	| expr '-' expr		{ $$ = $1 - $3; }
+	| expr '/' expr		{ $$ = $1 / $3; }
+	| expr '*' expr		{ $$ = $1 * $3; }
 	| '(' expr ')'		{ $$ = $2; }
-	| - expr %prec UMINUS { $$ = -$2; }
+	| '-' expr %prec UMINUS { $$ = -$2; }
 	| LETTERAL
 	;
 
