@@ -10,7 +10,7 @@
 	int bool; 	// 1 == true, 0 == false
 }
 
-%token	<val>	LETTERAL
+%token	<val>	FRACT
 %type	<val>	expr
 %type	<bool>	comp
 %type 	<bool>	bexpr
@@ -52,7 +52,7 @@ expr	: expr '+' expr		{ $$ = $1 + $3; }
 	| expr '*' expr		{ $$ = $1 * $3; }
 	| '(' expr ')'		{ $$ = $2; }
 	| '-' expr %prec UMINUS { $$ = -$2; }
-	| LETTERAL
+	| FRACT
 	;
 
 %%

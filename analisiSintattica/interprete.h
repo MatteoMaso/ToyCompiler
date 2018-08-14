@@ -45,7 +45,7 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    LETTERAL = 258,
+    FRACT = 258,
     UMINUS = 259,
     OR = 260,
     AND = 261,
