@@ -3,27 +3,26 @@
 	#include <stdio.h>
 	int yylex();
 	void yyerror(char *s);
+	char * next_var();
+	int counter;
 
-	
 	typedef struct Node
 	   { 
 		char * addr;
 	} Node;
-
-	char * next_var();
 %}
 
 
 %union {
 	Node *node
 	double val;
-	int bool; 	// 1 == true, 0 == false
+	int bool;      // 1 == true, 0 == false
 }
 
 %token	<node>	FRACT
 %type	<node>	expr
 %type	<node>	comp
-%type 	<node>	bexpr
+%type   <node>	bexpr
 
 %left	'+' '-'
 %left	'*' '/'
@@ -136,8 +135,12 @@ expr	: expr '+' expr		{ 	char *var = next_var();
 
 
 int main() {
+	
+	counter = 0;
+
 	if (yyparse() != 0)
 		fprintf(stderr, "Abnormal exit\n");
+
 	return 0; 
 }
 

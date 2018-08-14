@@ -1,7 +1,7 @@
 %option noyywrap
 %{
 #include <stdlib.h>
-#include "interprete.h"
+#include "compiler.h"
 %}
 
 digit     [0-9]
