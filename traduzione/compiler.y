@@ -5,22 +5,25 @@
 	void yyerror(char *s);
 
 	
-	struct Node
+	typedef struct Node
 	   { 
 		char * addr;
 	} Node;
+
+	char * next_var();
 %}
 
 
 %union {
+	Node *node
 	double val;
 	int bool; 	// 1 == true, 0 == false
 }
 
-%token	<val>	FRACT
-%type	<val>	expr
-%type	<bool>	comp
-%type 	<bool>	bexpr
+%token	<node>	FRACT
+%type	<node>	expr
+%type	<node>	comp
+%type 	<node>	bexpr
 
 %left	'+' '-'
 %left	'*' '/'
@@ -59,7 +62,7 @@ expr	: expr '+' expr		{ $$ = $1 + $3; }
 	| expr '*' expr		{ $$ = $1 * $3; }
 	| '(' expr ')'		{ $$ = $2; }
 	| '-' expr %prec UMINUS { $$ = -$2; }
-	| FRACT
+	| FRACT			{ }
 	;
 
 %%
@@ -75,3 +78,13 @@ int main() {
 void yyerror(char *s){
 	fprintf(stderr, "Error: %s\n", s);
 }
+
+char * next_var(){
+
+	static char buffer[1024];
+	snprintf(buffer, sizeof(buffer), "t%d", counter);
+	counter++;
+	return buffer;
+}
+
+
