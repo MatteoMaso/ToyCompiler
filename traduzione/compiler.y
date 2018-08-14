@@ -3,7 +3,14 @@
 	#include <stdio.h>
 	int yylex();
 	void yyerror(char *s);
+
+	
+	struct Node
+	   { 
+		char * addr;
+	} Node;
 %}
+
 
 %union {
 	double val;
@@ -56,6 +63,8 @@ expr	: expr '+' expr		{ $$ = $1 + $3; }
 	;
 
 %%
+
+
 
 int main() {
 	if (yyparse() != 0)
