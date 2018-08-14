@@ -3,6 +3,8 @@
 	#include <stdio.h>
 	int yylex();
 	void yyerror(char *s);
+	char * next_var();
+	int counter;
 %}
 
 %union {
@@ -58,11 +60,30 @@ expr	: expr '+' expr		{ $$ = $1 + $3; }
 %%
 
 int main() {
+	
+	counter = 0;
+
 	if (yyparse() != 0)
 		fprintf(stderr, "Abnormal exit\n");
+
+	for(int i = 0; i < 3; i++){
+		char * pippo = next_var();
+		printf(pippo);
+	}	
+
 	return 0; 
 }
 
 void yyerror(char *s){
 	fprintf(stderr, "Error: %s\n", s);
 }
+
+char * next_var(){
+
+	static char buffer[1024];
+	snprintf(buffer, sizeof(buffer), "t%d", counter);
+	counter++;
+	return buffer;
+}
+
+
