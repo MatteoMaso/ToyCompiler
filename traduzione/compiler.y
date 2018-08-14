@@ -7,7 +7,7 @@
 	int counter;
 
 	typedef struct Node
-	   { 
+	{ 
 		char * addr;
 	} Node;
 %}
