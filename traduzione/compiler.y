@@ -48,21 +48,87 @@ bexpr	: bexpr OR bexpr	{ if ($1 == 1 || $3 == 1) $$ = 1; else $$ = 0; }
 	| comp			{ $$ = $1; }
 	;
 
-comp	: expr LT expr		{ if ($1 < $3) $$ = 1; else $$ = 0; }
-	| expr LE expr		{ if ($1 <= $3) $$ = 1; else $$ = 0; }
-	| expr GE expr		{ if ($1 >= $3) $$ = 1; else $$ = 0; }
-	| expr GT expr		{ if ($1 > $3) $$ = 1; else $$ = 0; }
-	| expr EQ expr		{ if ($1 == $3) $$ = 1; else $$ = 0; }
-	| '(' comp ')'		{ $$ = $2; }
+comp	: expr LT expr		{ 	char *var = next_var();
+					Node var.addr = malloc(4);
+					if($1 < $3){
+					    *var = 1
+					} else{
+					*var = 0;
+					}
+				 }
+
+	| expr LE expr		{ 	char *var = next_var();
+					Node var.addr = malloc(4);
+					if($1 <= $3){
+					    *var = 1
+					} else{
+					*var = 0;
+					}
+				 }
+
+	| expr GE expr		{ 	char *var = next_var();
+					Node var.addr = malloc(4);
+					if($1 >= $3){
+					    *var = 1
+					} else{
+					*var = 0;
+					}
+				 }
+
+	| expr GT expr		{ 	char *var = next_var();
+					Node var.addr = malloc(4);
+					if($1 > $3){
+					    *var = 1
+					} else{
+					*var = 0;
+					}
+				 }
+
+	| expr EQ expr		{ 	char *var = next_var();
+					Node var.addr = malloc(4);
+					if($1 == $3){
+					    *var = 1
+					} else{
+					*var = 0;
+					}
+				 }
+
+	| '(' comp ')'		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($2));  // size of boolean
+					*var = $2;
+				 }
 	;
 
-expr	: expr '+' expr		{ $$ = $1 + $3; }
-	| expr '-' expr		{ $$ = $1 - $3; }
-	| expr '/' expr		{ $$ = $1 / $3; }
-	| expr '*' expr		{ $$ = $1 * $3; }
-	| '(' expr ')'		{ $$ = $2; }
-	| '-' expr %prec UMINUS { $$ = -$2; }
-	| FRACT			{ }
+expr	: expr '+' expr		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($1));
+					*var = ($1+$3);
+				 }
+	| expr '-' expr		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($1));
+					*var = ($1-$3);
+				 }
+	| expr '/' expr		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($1));
+					*var = ($1*$3);
+				 }
+	| expr '*' expr		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($1));
+					*var = ($1*$3);
+				 }
+	| '(' expr ')'		{ 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($2));
+					*var = $2;
+				 }
+	| '-' expr %prec UMINUS { 	char *var = next_var();
+					Node var.addr = malloc(sizeOf($2));
+					*var = -$2;
+				 }
+	| FRACT			{ 	
+					char *var = next_var();
+					Node var.addr = malloc(sizeOf($1));
+					*var = $1;
+				
+				}
 	;
 
 %%
