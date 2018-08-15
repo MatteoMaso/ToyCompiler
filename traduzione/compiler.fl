@@ -23,7 +23,6 @@ endcomment	"*/"
 comment         {startcomment}(.)*{endcomment}
 
 
-
 %% /*---------------------------------------------------REGOLE------------------------------------*/
 
 {comment}	{}
@@ -41,5 +40,5 @@ comment         {startcomment}(.)*{endcomment}
 "-"		{ return '-'; }
 "*"		{ return '*'; }
 "/"		{ return '/'; }
-{fract}	{ yylval.val = atof(yytext); return FRACT; }
+{fract}		{ yylval.val = atof(yytext); return FRACT; }
 \n|.		{ return yytext[0]; }
