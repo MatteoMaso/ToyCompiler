@@ -34,7 +34,7 @@
 
 %%
 lines	//: lines bexpr '\n'	{ printf("%d\n", $2); }
-	: lines expr '\n'	{ printf("Lines expr aritmetica: %f\n", $2); }
+	: lines expr '\n'	{ printf("Lines expr aritmetica: %f\n", $2->value); }
 	| lines '\n'
 	| /* empty */
 	;
@@ -56,7 +56,11 @@ lines	//: lines bexpr '\n'	{ printf("%d\n", $2); }
 
 expr	: expr '+' expr		{ 	char * temp = next_var();
 					printf("prova: %f + %f\n", $1->value, $3->value);
-	//				printf("%s = %s + %s\n", temp, "ciao", "c");
+					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+					n->value = ($1->value)+($3->value);
+					n->addr = temp;
+					$$ = n;
+					printf("%s = %s + %s\n", temp, $1->addr, $3->addr);
  	//				struct node n;
 					//n.val = 2;
 					//n.addr = temp;
