@@ -8,6 +8,7 @@
 
 	struct Node{
 		char * addr;
+		double value;
 	};
 %}
 
@@ -53,25 +54,26 @@ lines	//: lines bexpr '\n'	{ printf("%d\n", $2); }
 //	| '(' comp ')'		{ $$ = $2; }
 //	;
 
-expr	//: expr '+' expr		{ 	char * temp = next_var();
-	//				printf("prova: %f + %f\n", $1->val, $3->val);
+expr	: expr '+' expr		{ 	char * temp = next_var();
+					printf("prova: %f + %f\n", $1->value, $3->value);
 	//				printf("%s = %s + %s\n", temp, "ciao", "c");
  	//				struct node n;
 					//n.val = 2;
 					//n.addr = temp;
 					//$$ = &n;
-	//			 }
+				 }
 	//| expr '-' expr		{ $$ = $1 - $3; }
 	//| expr '/' expr		{ $$ = $1 / $3; }
 	//| expr '*' expr		{ $$ = $1 * $3; }
 	//| '(' expr ')'		{ $$ = $2; }
 	//| '-' expr %prec UMINUS { $$ = -$2; }
-	: FRACT			{ 	
+	| FRACT			{ 	
 					char * temp = next_var();
 					printf("%s = %f\n", temp, $1);
- 					//;
-					//n.val = 2;
-					//n.addr = temp;
+ 					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+					n->addr = temp;
+					n->value = $1;
+					$$ = n;
 					//$$ = &n;
 				}
 	;
