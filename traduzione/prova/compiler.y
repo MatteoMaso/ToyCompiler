@@ -100,7 +100,7 @@ void yyerror(char *s){
 
 char * next_var(){
 
-	static char buffer[1024];
+	char *  buffer = (char * ) malloc(sizeof(char) * 100);
 	snprintf(buffer, sizeof(buffer), "t%d", counter);
 	counter++;
 	return buffer;
