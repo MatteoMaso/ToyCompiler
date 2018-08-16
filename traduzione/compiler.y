@@ -7,7 +7,7 @@
 	int counter;
 
 	typedef struct Node
-	{ 
+	   { 
 		char * addr;
 	} Node;
 %}
@@ -155,5 +155,6 @@ char * next_var(){
 	counter++;
 	return buffer;
 }
+
 
 
