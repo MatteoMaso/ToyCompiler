@@ -15,6 +15,7 @@
 		double value;
 		int boolean;
 	};
+
 %}
 
 %union {
@@ -43,6 +44,12 @@ lines	: lines bexpr '\n'	{ printf("Boolean Expression: %s = %d\n", $2->addr, $2-
 	| lines '\n'
 	| /* empty */
 	;
+
+dich 	: INT ID 		{struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+					n->addr = $2;
+				}
+
+assign	: ID '=' expr		{$1->value = $3->value;}
 
 bexpr	: bexpr OR bexpr	{ $$ = mknodeB("OR", $1, $3); 
 					printf("%s = %s || %s\n", $$->addr, $1->addr, $3->addr); }
@@ -87,6 +94,7 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 					$$ = n; 
 					printf("%s = -%s\n", $$->addr, $2->addr); 
 				}
+
 	| FRACT			{ 	
 					$$ = mkLeaf($1);
 					printf("%s = %f\n", $$->addr, $1 );

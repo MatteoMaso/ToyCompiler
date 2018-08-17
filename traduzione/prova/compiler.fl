@@ -20,6 +20,8 @@ fract       [0-9]+\.?|[0-9]*\.[0-9]+
 startcomment    "/*"
 endcomment	"*/"
 
+
+
 comment         {startcomment}(.)*{endcomment}
 
 
@@ -41,4 +43,5 @@ comment         {startcomment}(.)*{endcomment}
 "*"		{ return '*'; }
 "/"		{ return '/'; }
 {fract}		{ yylval.val = atof(yytext); return FRACT; }
+{id}		{yylval.val = yytext; return ID;}
 \n|.		{ return yytext[0]; }
