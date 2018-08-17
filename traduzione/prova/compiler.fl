@@ -22,10 +22,15 @@ endcomment	"*/"
 
 comment         {startcomment}(.)*{endcomment}
 
+int	  {ws}*int[ ]+
+
 
 %% /*---------------------------------------------------REGOLE------------------------------------*/
 
-{comment}	{}
+{comment}	{ printf("Comment"); }
+
+{int}		{ return INT; }
+{id}		{ yylval.val = yytext; return ID; }
 
 [ \t]		{ /* skip blanks */ }
 "&&"		{ return AND; }

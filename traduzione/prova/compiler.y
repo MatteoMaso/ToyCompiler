@@ -40,8 +40,8 @@
 %%
 lines	: lines bexpr '\n'	{ printf("Boolean Expression: %s = %d\n", $2->addr, $2->boolean); }
 	| lines expr '\n'	{ printf("Lines expr aritmetica: %f\n", $2->value); }
-	| lines '\n'
-	| /* empty */
+	| lines '\n'		{ printf("linea \n"); }
+	| /* empty */		{ printf("linea senza a capo"); }
 	;
 
 bexpr	: bexpr OR bexpr	{ $$ = mknodeB("OR", $1, $3); 
@@ -99,6 +99,8 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 				}
 	;
 
+
+
 %%
 
 int main() {
@@ -125,7 +127,7 @@ struct Node * mkLeaf(double n1){
 }
 
 //function to create an expression node
-struct Node* mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
+struct Node * mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
 	
 	char * temp = next_var();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
@@ -145,7 +147,8 @@ struct Node* mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
 	return n;
 }
 
-struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){ //boolean expression
+
+struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){ 
 	char * temp = next_var();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 	n->addr = temp;
