@@ -6,6 +6,8 @@
 	void yyerror(char *s);
 	char * next_var();
 	int counter;
+	struct Node * mkLeaf(double n1);
+	struct Node* mkExpNode(char * tipo, struct Node * n1, struct Node * n2);
 	struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2);
 
 	struct Node{
@@ -67,31 +69,33 @@ comp	: expr LT expr		{ $$ = mknodeB("LT", $1, $3);
 	| '(' comp ')'		{ $$ = $2; }
 	;
 
-expr	: expr '+' expr		{ 	char * temp = next_var();
-					printf("prova: %f + %f\n", $1->value, $3->value);
-					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-					n->value = ($1->value)+($3->value);
-					n->addr = temp;
-					$$ = n;
-					printf("%s = %s + %s\n", temp, $1->addr, $3->addr);
- 	//				struct node n;
-					//n.val = 2;
-					//n.addr = temp;
-					//$$ = &n;
+expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3); 
+					printf("%s = %s + %s\n", $$->addr, $1->addr, $3->addr); 
 				 }
-	//| expr '-' expr		{ $$ = $1 - $3; }
-	//| expr '/' expr		{ $$ = $1 / $3; }
-	//| expr '*' expr		{ $$ = $1 * $3; }
-	//| '(' expr ')'		{ $$ = $2; }
-	//| '-' expr %prec UMINUS { $$ = -$2; }
-	| FRACT			{ 	
-					char * temp = next_var();
-					printf("%s = %f\n", temp, $1);
- 					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+	| expr '-' expr		{ $$ =  mkExpNode("-", $1, $3); 
+					printf("%s = %s - %s\n", $$->addr, $1->addr, $3->addr); } 
+	| expr '/' expr		{ $$ =  mkExpNode("/", $1, $3); 
+					printf("%s = %s / %s\n", $$->addr, $1->addr, $3->addr); }
+	| expr '*' expr		{ $$ = mkExpNode("*", $1, $3); 
+					printf("%s = %s * %s\n", $$->addr, $1->addr, $3->addr); }
+	| '(' expr ')'		{ char * temp = next_var();
+					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 					n->addr = temp;
-					n->value = $1;
-					$$ = n;
-					//$$ = &n;
+					n->value = ($2->value);
+					$$ = n; 
+					printf("%s = %s\n", $$->addr, $2->addr);
+					
+					}
+	| '-' expr %prec UMINUS { char * temp = next_var();
+					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+					n->addr = temp;
+					n->value = -($2->value);
+					$$ = n; 
+					printf("%s = -%s\n", $$->addr, $2->addr); 
+				}
+	| FRACT			{ 	
+					$$ = mkLeaf($1);
+					printf("%s = %f\n", $$->addr, $1 );
 				}
 	;
 
@@ -109,6 +113,36 @@ int main() {
 
 void yyerror(char *s){
 	fprintf(stderr, "Error: %s\n", s);
+}
+
+struct Node * mkLeaf(double n1){
+	char * temp = next_var();
+	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+	n->addr = temp;
+	n->value = n1;
+	return n;
+
+}
+
+//function to create an expression node
+struct Node* mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
+	
+	char * temp = next_var();
+	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+	n->addr = temp;
+	if(strcmp(tipo, "+") == 0){
+		n->value = (n1->value) + (n2->value);
+		
+	} else if(strcmp(tipo, "-") == 0){
+		n->value = (n1->value) - (n2->value);
+	} else if(strcmp(tipo, "*") == 0){
+		n->value = (n1->value) * (n2->value);
+	} else if(strcmp(tipo, "/") == 0){
+		n->value = (n1->value) / (n2->value);
+	}else {
+		printf("Error match in mkExpNode");
+	}
+	return n;
 }
 
 struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){ //boolean expression
