@@ -1,6 +1,7 @@
 %option noyywrap
 %{
 #include <stdlib.h>
+#include <string.h>
 #include "compiler.h"
 %}
 
@@ -29,8 +30,9 @@ int	  {ws}*int[ ]+
 
 {comment}	{ printf("Comment"); }
 
+
+{id}		{ yylval.string = strdup(yytext); return ID; }
 {int}		{ return INT; }
-{id}		{ yylval.val = yytext; return ID; }
 
 [ \t]		{ /* skip blanks */ }
 "&&"		{ return AND; }
