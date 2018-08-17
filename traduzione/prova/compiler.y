@@ -78,14 +78,8 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 					printf("%s = %s / %s\n", $$->addr, $1->addr, $3->addr); }
 	| expr '*' expr		{ $$ = mkExpNode("*", $1, $3); 
 					printf("%s = %s * %s\n", $$->addr, $1->addr, $3->addr); }
-	| '(' expr ')'		{ char * temp = next_var();
-					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-					n->addr = temp;
-					n->value = ($2->value);
-					$$ = n; 
-					printf("%s = %s\n", $$->addr, $2->addr);
-					
-					}
+	| '(' expr ')'		{ $$ = $2;
+					 }
 	| '-' expr %prec UMINUS { char * temp = next_var();
 					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 					n->addr = temp;
