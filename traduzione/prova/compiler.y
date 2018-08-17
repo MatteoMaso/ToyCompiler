@@ -44,17 +44,18 @@
 %%
 lines	: lines bexpr '\n'	{ printf("Boolean Expression: %s = %d\n", $2->addr, $2->boolean); }
 	| lines expr '\n'	{ printf("Lines expr aritmetica: %f\n", $2->value); }
-	| lines '\n'		{  }
-	| /* empty */		{  }
+	| lines '\n'		{ printf(""); }
+	| var '=' expr '\n'	{ printf("%s = %s;\n", $1->addr, $3->addr); }
+	| /* empty */		{ }
+	| lines ';' '\n'	{ printf("");}
+	| INT var 		{ printf("int %s;\n", $2->addr ); }
 	;
 
-var 	: INT var 		{ printf("int %s;\n", $2->addr ); } //salvare la variabile
-	| ID			{ 					
+var 	:  ID			{ 					
 				  $$ = mkVarNode($1, 0); 
 				}
 	;
 
-//assign	: id '=' expr		{$1->value = $3->value;}
 
 bexpr	: bexpr OR bexpr	{ $$ = mknodeB("OR", $1, $3); 
 					printf("%s = %s || %s;\n", $$->addr, $1->addr, $3->addr); }
@@ -104,7 +105,7 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 					$$ = mkLeaf($1);
 					printf("%s = %f\n", $$->addr, $1 );
 				}
-	| var			{}
+	| var			{ printf("match var");}
 	;
 
 
