@@ -28,7 +28,7 @@ startOneLineComment "//"
 
 oneLineComment  {startOneLineComment}(.)*{newline}
 
-int	  {ws}*int[ ]+
+int	  ([ \t])*int[ ]+
 
 comment         [^*|\n]
 

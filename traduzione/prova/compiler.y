@@ -42,16 +42,15 @@
 %nonassoc NEQ EQ LT GT LE GE INT
 
 %%
-lines	: lines bexpr '\n'	{ printf("Boolean Expression: %s = %d\n", $2->addr, $2->boolean); }
-	| lines expr '\n'	{ /*printf("Lines expr aritmetica: %f\n", $2->value); */}
-	| lines '\n'		{ printf(""); }
-//	| var '=' expr '\n'	{ printf("%s = %s;\n", $1->addr, $3->addr); }
+lines	: lines bexpr ';'	{ printf("Boolean Expression: %s = %d\n", $2->addr, $2->boolean); }
+	| lines expr ';'	{ /* printf("Lines expr aritmetica: %f\n", $2->value); */}
+	| lines var '=' expr ';'	{ printf("%s = %s;\n", $2->addr, $4->addr); }
+	| lines INT var ';'		{ printf("int %s;\n", $3->addr ); }
+	| lines '\n'		{ }
 	| /* empty */		{ }
-//	| lines ';' '\n'	{ printf("");}
-//	| INT var 		{ printf("int %s;\n", $2->addr ); }
 	;
 
-var 	:  ID			{ 					
+var 	:  ID			{ 
 				  $$ = mkVarNode($1, 0); 
 				}
 	;
@@ -107,7 +106,7 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 					$$ = mkLeaf($1);
 //					printf("%s = %f\n", $$->addr, $1 );
 				}
-	| var			{ printf("match var: %s\n", $1); }
+	| var			{ $$ = $1; }
 	;
 
 
