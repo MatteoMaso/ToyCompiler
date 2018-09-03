@@ -1,0 +1,8 @@
+comandi: 
+
+./go.sh
+./compiler < input_example.txt > hello.c
+gcc -o hello hello.c
+./hello
+
+

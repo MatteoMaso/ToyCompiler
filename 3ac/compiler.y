@@ -110,8 +110,8 @@ if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", 
                 corpo           { $$ = mkStatement($3->f); }
         ;
 
-corpo   : '{' s1 '}'                //{ $$ = mkStatement($3->f); printf("%s: ;\n", $$->next);}
-        | '{'    '}'                //{ $$ = mkStatement($3->f); printf("%s: ;\n", $$->next);} //regola per matchare l'if con stato vuoto
+corpo   : '{' s1 '}'                
+        | '{'    '}'                
         ;
 
 var 	:  ID			 { 
