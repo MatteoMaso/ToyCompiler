@@ -5,7 +5,9 @@
 	int yylex();
 	void yyerror(char *s);
 	char * next_var();
-        char * next_label();
+	char * next_doubleVar();
+	char * next_boolVar();        
+	char * next_label();
 	int counter_t;
         int counter_l;
 	struct Node * mkLeaf(double n1);
@@ -56,7 +58,7 @@
 
 %token	<val>	   DOUBLE
 %token  <string>   ID
-%token	IF ELSE WHILE
+%token	IF ELSE WHILE PRINT
 
 %type 	<node>	 expr comp var
 %type   <boolNode> bexpr
@@ -73,7 +75,7 @@
 %nonassoc NEQ EQ LT GT LE GE 
 
 %%
-prog	: s1                       { /*printf("%s:\n", $1->next);*/ }
+prog	: s1                       { /*printf("fine\n");*/}
         | prog '\n'                { printf("match empty prog e n \n"); }
         | /*empty*/                { printf("match empty program\n"); } 
         | while
@@ -85,30 +87,31 @@ s1      : s1 s                     { /*$$ = mkStatement($2->next);*/ }
 
 s       : var '=' expr ';'             { $$ = mkStat(); printf("%s = %s;\n", $1->addr, $3->addr); }
         | DOUBLE var ';'               { $$ = mkStat(); printf("double %s;\n", $2->addr ); }
-        | if_statement                 { $$ = $1; printf("%s:\n", $1->next); }
+        | if_statement                 { $$ = $1; printf("%s: ;\n", $1->next); }
         | whileB corpo                 { $$ = mkStat(); printf("goto %s;\n%s:\n", $1->begin, $1->f); }
+	| printf ';'		       { $$ = mkStat(); }
         ;
 
-while   : WHILE         { $$ = mkWhileNode(); $$->begin = next_label(); printf("%s:\n", $$->begin); }
+while   : WHILE         { $$ = mkWhileNode(); $$->begin = next_label(); printf("%s: ;\n", $$->begin); }
         ;
 
-whileB  : while bexpr   { $$=$1; $$->t = next_label(); $$->f = next_label(); printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s:\n", $2->addr, $$->t, $$->f, $$->t); }
+whileB  : while bexpr   { $$=$1; $$->t = next_label(); $$->f = next_label(); printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s: ;\n", $2->addr, $$->t, $$->f, $$->t); }
 
 
 if_statement : if_else corpo { $$ = $1; }
              | if_bool  { $$ = $1; } 
              ;
 
-if_else : if_bool ELSE          { $$ = mkStatement(next_label()); printf("goto %s;\n", $$->next); printf("%s:\n", $1->next); } 
+if_else : if_bool ELSE          { $$ = mkStatement(next_label()); printf("goto %s;\n", $$->next); printf("%s: ;\n", $1->next); } 
                
         ;
 
-if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto: %s;\n", $3->addr, $3->t, $3->f); printf("%s:\n", $3->t); } 
+if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto: %s;\n", $3->addr, $3->t, $3->f); printf("%s: ;\n", $3->t); } 
                 corpo           { $$ = mkStatement($3->f); }
         ;
 
-corpo   : '{' s1 '}'                //{ $$ = mkStatement($3->f); printf("%s:\n", $$->next);}
-        | '{'    '}'                //{ $$ = mkStatement($3->f); printf("%s:\n", $$->next);} //regola per matchare l'if con stato vuoto
+corpo   : '{' s1 '}'                //{ $$ = mkStatement($3->f); printf("%s: ;\n", $$->next);}
+        | '{'    '}'                //{ $$ = mkStatement($3->f); printf("%s: ;\n", $$->next);} //regola per matchare l'if con stato vuoto
         ;
 
 var 	:  ID			 { 
@@ -116,17 +119,20 @@ var 	:  ID			 {
 				 }
 	;
 
-bexpr	: bexpr OR comp 	{ $$ = mkBoolNode(next_var(), $1->t, $1->f);
+bexpr	: bexpr OR comp 	{ $$ = mkBoolNode(next_boolVar(), $1->t, $1->f);
 					printf("%s = %s || %s;\n", $$->addr, $1->addr, $3->addr); }
-	| bexpr AND comp	{ $$ = mkBoolNode(next_var(), $1->t, $1->f);
+	| bexpr AND comp	{ $$ = mkBoolNode(next_boolVar(), $1->t, $1->f);
 					printf("%s = %s && %s;\n", $$->addr, $1->addr, $3->addr); }
-	| NOT bexpr		{       $$ = mkBoolNode(next_var(), $2->t, $2->f);
+	| NOT bexpr		{       $$ = mkBoolNode(next_boolVar(), $2->t, $2->f);
 					printf("%s = NOT %s;\n", $$->addr, $2->addr); }
 	| '(' bexpr ')'		{ $$ = $2; }
 	| comp			{ 
                                         //$$ = $1; 
                                         $$ = mkBoolNode($1->addr, next_label(), next_label());
                                 }
+	;
+
+printf  : PRINT '(' var ')'	{ printf("printf(\"var: %s = %f\");", $3->addr, $3->value); }
 	;
 
 //todo bisogna modificare mknodeB semplicemente creando una nuova variabile temporanea ma nn serve salvare tutte le operazioni
@@ -153,7 +159,7 @@ expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3);
 	| expr '*' expr		{ $$ = mkExpNode("*", $1, $3); 
 					printf("%s = %s * %s;\n", $$->addr, $1->addr, $3->addr); }
 	| '(' expr ')'		{ $$ = $2; }
-	| '-' expr %prec UMINUS { char * temp = next_var();
+	| '-' expr %prec UMINUS { char * temp = next_doubleVar();
 					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 					n->addr = temp;
 					n->value = -($2->value);
@@ -179,8 +185,12 @@ int main() {
 	counter_t = 0;  //temp variable
 	counter_l = 0;  //label
 
+	printf("#include <stdio.h>\n#include <stdbool.h>\n\nint main() {\n\n");
+	
 	if (yyparse() != 0)
 		fprintf(stderr, "Abnormal exit\n");
+
+	printf("\n\n}\n");	
 
 	return 0; 
 }
@@ -197,9 +207,7 @@ struct Node * mkVarNode(char * name, double value){
 }
 
 struct Node * mkLeaf(double n1){
-//	char * temp = next_var();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-//	n->addr = temp;
 	char *  buffer = (char * ) malloc(sizeof(char) * 100);
 	sprintf(buffer, "%.2f", n1);
 	n->addr = buffer;
@@ -245,7 +253,7 @@ struct WhileNode * mkWhileNode(){
 //function to create an expression node
 struct Node * mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
 	
-	char * temp = next_var();
+	char * temp = next_doubleVar();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 	n->addr = temp;
 	if(strcmp(tipo, "+") == 0){
@@ -264,7 +272,7 @@ struct Node * mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
 }
 
 struct Node * mknodeNotB(struct Node * n1){
-	char * temp = next_var();
+	char * temp = next_boolVar();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 	n->addr = temp;
 	n->boolean = n1->value;
@@ -272,7 +280,7 @@ struct Node * mknodeNotB(struct Node * n1){
 }
 
 struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){ 
-	char * temp = next_var();
+	char * temp = next_boolVar();
 	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
 	n->addr = temp;
 
@@ -297,6 +305,18 @@ struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){
 	}
 		
 	return n;
+}
+
+char * next_boolVar(){
+	char *  temp = next_var();
+	printf("bool %s;\n", temp);
+	return temp;
+}
+
+char * next_doubleVar(){
+	char *  temp = next_var();
+	printf("double %s;\n", temp);
+	return temp;
 }
 
 char * next_var(){

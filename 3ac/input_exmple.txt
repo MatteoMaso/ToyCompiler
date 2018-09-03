@@ -1,23 +1,9 @@
 
-if (2<3){
+double a;
 
-	double s;
+while ( a < 5 ){
 
+	a = a + 1;
 }
 
-while ( a < 5){
-	double c;
-
-	if ( 3 < 5) {
-
-	double a;
-
-	a = e +3;
-
-	} else {
-
-		double s;
-	}
-}
-
-double fine;
+stampa (a) ;

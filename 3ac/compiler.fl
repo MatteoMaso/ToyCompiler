@@ -28,6 +28,7 @@ double	  	([ \t])*double[ ]+
 if		([ \t])*if[ ]*
 else		([ \t])*else[ ]*
 while		([ \t])*while[ ]*
+stampa		([ \t])*stampa[ ]*
 pippo 		[1-9][0-9]*
 
 comment         [^*|\n]
@@ -48,6 +49,7 @@ oneLineComment  {startOneLineComment}(.)*{newline}
 {if}		{ return IF; }
 {else}		{ return ELSE; }
 {while}		{ return WHILE; }
+{stampa}	{ return PRINT; }
 "&&"		{ return AND; }
 "||"		{ return OR; }
 "!"		{ return NOT; }
