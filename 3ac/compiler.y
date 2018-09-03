@@ -75,7 +75,7 @@
 %nonassoc NEQ EQ LT GT LE GE 
 
 %%
-prog	: s1                       { /*printf("fine\n");*/}
+prog	: s1                       { /*printf("%", $$->begin);*/ }
         | prog '\n'                { printf("match empty prog e n \n"); }
         | /*empty*/                { printf("match empty program\n"); } 
         | while
@@ -88,7 +88,7 @@ s1      : s1 s                     { /*$$ = mkStatement($2->next);*/ }
 s       : var '=' expr ';'             { $$ = mkStat(); printf("%s = %s;\n", $1->addr, $3->addr); }
         | DOUBLE var ';'               { $$ = mkStat(); printf("double %s;\n", $2->addr ); }
         | if_statement                 { $$ = $1; printf("%s: ;\n", $1->next); }
-        | whileB corpo                 { $$ = mkStat(); printf("goto %s;\n%s:\n", $1->begin, $1->f); }
+        | whileB corpo                 { $$ = mkStat(); printf("goto %s;\n%s: ;\n", $1->begin, $1->f); }
 	| printf ';'		       { $$ = mkStat(); }
         ;
 
@@ -106,7 +106,7 @@ if_else : if_bool ELSE          { $$ = mkStatement(next_label()); printf("goto %
                
         ;
 
-if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto: %s;\n", $3->addr, $3->t, $3->f); printf("%s: ;\n", $3->t); } 
+if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $3->addr, $3->t, $3->f); printf("%s: ;\n", $3->t); } 
                 corpo           { $$ = mkStatement($3->f); }
         ;
 
@@ -132,7 +132,7 @@ bexpr	: bexpr OR comp 	{ $$ = mkBoolNode(next_boolVar(), $1->t, $1->f);
                                 }
 	;
 
-printf  : PRINT '(' var ')'	{ printf("printf(\"var: %s = %f\");", $3->addr, $3->value); }
+printf  : PRINT '(' var ')'	{ printf("printf(\"var: %s = %sf \\n\", %s);\n", $3->addr, "%", $3->addr); }
 	;
 
 //todo bisogna modificare mknodeB semplicemente creando una nuova variabile temporanea ma nn serve salvare tutte le operazioni
