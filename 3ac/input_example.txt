@@ -3,7 +3,7 @@ double a;
 
 a = 10;
 
-if ( a >= 12 ) { stampa(a); }
+if   ( a >= 12 ) { stampa(a); }
 
 while ( a < 15 ) {
 
