@@ -10,47 +10,26 @@
 	char * next_label();
 	int counter_t;
         int counter_l;
-	struct Node * mkLeaf(double n1);
-	struct Node * mkExpNode(char * tipo, struct Node * n1, struct Node * n2);
-	struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2);
-	struct Node * mkVarNode(char * name, double value);
-	struct Node * mknodeNotB(struct Node * n1);
+	char * doubleToString(double n1);
 	
-	struct Node{
-		char * addr;
-		double value;
-		int boolean;
-
-	};
-
-        struct StatementNode * mkStatement(char * next);
         struct StatementNode * mkStat();
         struct StatementNode{
                 char * next;
-                int assegnato;
+                //int assegnato;
         };
 
-        struct BoolNode * mkBoolNode(char * temp, char * t, char * f);
+        struct BoolNode * mkBoolNode(char * temp);
         struct BoolNode{
 		char * addr;
                 char * t;
                 char * f; 
         };
 
-        struct WhileNode * mkWhileNode();
-        struct WhileNode{
-                char * begin;
-                char * t; 
-                char * f;
-        };
-
 %}
 
 %union {
-	struct Node * node;
         struct BoolNode * boolNode;
         struct StatementNode * sNode;
-        struct WhileNode * wNode;
 	double val;
 	int bool; 	// 1 == true, 0 == false
 	char * string;
@@ -58,12 +37,12 @@
 
 %token	<val>	   DOUBLE
 %token  <string>   ID
-%token	IF ELSE WHILE PRINT
+%token	IF ELSE WHILE PRINT 
 
-%type 	<node>	 expr comp var
-%type   <boolNode> bexpr
-%type   <sNode> s s1 if_statement if_bool if_else
-%type   <wNode>  whileB while
+%type   <string> var expr comp M1
+%type   <boolNode> bexpr  while W1 W2
+%type   <sNode> s s1 if_statement if_bool if_else M2 corpo
+
 
 %left	'+' '-'
 %left	'*' '/'
@@ -72,111 +51,95 @@
 %left	AND
 %right	NOT
 
-%nonassoc NEQ EQ LT GT LE GE 
+%nonassoc NEQ EQ LT GT LE GE
 
 %%
-prog	: s1                       { /*printf("%", $$->begin);*/ }
-        | prog '\n'                { printf("match empty prog e n \n"); }
-        | /*empty*/                { printf("match empty program\n"); } 
-        | while
+prog	: s1                    { }
+        | prog '\n'             { }
+        | /*empty*/             { } 
         ;
 
-s1      : s1 s                     { /*$$ = mkStatement($2->next);*/ }
-        | s                        { /*$$ = $1;*/ }
+s1      : s1 s                  { }
+        | s                     { }
         ;
 
-s       : var '=' expr ';'             { $$ = mkStat(); printf("%s = %s;\n", $1->addr, $3->addr); }
-        | DOUBLE var ';'               { $$ = mkStat(); printf("double %s;\n", $2->addr ); }
-        | if_statement                 { $$ = $1; printf("%s: ;\n", $1->next); }
-        | whileB corpo                 { $$ = mkStat(); printf("goto %s;\n%s: ;\n", $1->begin, $1->f); }
-	| printf ';'		       { $$ = mkStat(); }
+s       : var '=' expr ';'        { printf("%s = %s;\n", $1, $3); 		free($1); free($3);  }
+        | DOUBLE var ';'          { printf("double %s;\n", $2);   		free($2);            }
+	| DOUBLE var '=' expr ';' { printf("double %s = %s;\n", $2, $4); 	free($2), free($4);  }
+        | if_statement            { printf("%s: ;\n", $1->next);  		free($1);            }
+        | while  	          { }
+	| printf ';'		  { }
         ;
 
-while   : WHILE         { $$ = mkWhileNode(); $$->begin = next_label(); printf("%s: ;\n", $$->begin); }
-        ;
-
-whileB  : while bexpr ')'  { $$=$1; $$->t = next_label(); $$->f = next_label(); printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s: ;\n", $2->addr, $$->t, $$->f, $$->t); }
 
 
-if_statement : if_else corpo { $$ = $1; }
-             | if_bool  { $$ = $1; } 
+while  	: WHILE W1 bexpr W2 corpo { printf("goto %s;\n%s: ;\n", $4->addr, $4->f); free($3); free($4); }
+	;
+
+W2	:			{ 
+				  $$=$<boolNode>-1; $$->t = next_label(); $$->f = next_label(); 
+				  printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s: ;\n", $<boolNode>0->addr, $$->t, $$->f, $$->t);  
+				}
+	;
+
+W1	: 			{ $$ = mkBoolNode(next_label()); printf("%s: ;\n", $$->addr); }
+	;
+
+
+if_statement : if_else  	{ $$ = $1; }
+             | if_bool  	{ $$ = $1; } 
              ;
 
-if_else : if_bool ELSE          { $$ = mkStatement(next_label()); printf("goto %s;\n", $$->next); printf("%s: ;\n", $1->next); } 
-               
+if_else : if_bool M2 corpo { $$ = $2; free($1); }  
         ;
 
-if_bool  : IF  bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $2->addr, $2->t, $2->f); printf("%s: ;\n", $2->t); } 
-                corpo          { $$ = mkStatement($2->f); }
-        ;
-
-corpo   : '{' s1 '}'                
-        | '{'    '}'                
-        ;
-
-var 	:  ID			 { 
-				     $$ = mkVarNode($1, 0); 
-				 }
+M2	: ELSE			{ $$ = mkStat(); $$->next = next_label(); printf("goto %s;\n", $$->next); printf("%s: ;\n", $<sNode>0->next); } 
 	;
 
-bexpr	: bexpr OR comp 	{ $$ = mkBoolNode(next_boolVar(), $1->t, $1->f);
-					printf("%s = %s || %s;\n", $$->addr, $1->addr, $3->addr); }
-	| bexpr AND comp	{ $$ = mkBoolNode(next_boolVar(), $1->t, $1->f);
-					printf("%s = %s && %s;\n", $$->addr, $1->addr, $3->addr); }
-	| NOT bexpr		{       $$ = mkBoolNode(next_boolVar(), $2->t, $2->f);
-					printf("%s = NOT %s;\n", $$->addr, $2->addr); }
+if_bool : IF '(' bexpr ')' M1  corpo  { $$ = mkStat(); $$->next = $3->f; } //bisognerebbe mettere il free sul bexpr ma nn si può perchè $3->f
+        ;
+
+M1	: 			{  printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $<boolNode>-1->addr, $<boolNode>-1->t, $<boolNode>-1->f); 					   printf("%s: ;\n", $<boolNode>-1->t);
+				} 
+	;
+
+corpo   : '{' s1 '}'            { }   
+        | '{'    '}'            { }    
+        ;
+
+bexpr	: bexpr OR  bexpr 	{ $$ = mkBoolNode(next_boolVar()); $$->t = $1->t, $$->f = $1->f;
+					printf("%s = %s || %s;\n", $$->addr, $1->addr, $3->addr);  }
+	| bexpr AND bexpr	{ $$ = mkBoolNode(next_boolVar()); $$->t = $1->t, $$->f = $1->f;
+					printf("%s = %s && %s;\n", $$->addr, $1->addr, $3->addr);  }
+	| NOT bexpr		{ $$ = mkBoolNode(next_boolVar()); $$->t = $2->t, $$->f = $2->f; 
+					printf("%s = !%s;\n", $$->addr, $2->addr); }
 	| '(' bexpr ')'		{ $$ = $2; }
-	| comp			{ 
-                                        //$$ = $1; 
-                                        $$ = mkBoolNode($1->addr, next_label(), next_label());
-                                }
+	| comp			{ $$ = mkBoolNode($1); $$->t = next_label(), $$->f = next_label(); }
 	;
 
-printf  : PRINT '(' var ')'	{ printf("printf(\"var: %s = %sf \\n\", %s);\n", $3->addr, "%", $3->addr); }
+comp	: expr LT  expr		{ $$ = next_boolVar(); printf("%s = %s < %s;\n",  $$, $1, $3); free($1);  free($3); }
+	| expr LE  expr		{ $$ = next_boolVar(); printf("%s = %s <= %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr GE  expr		{ $$ = next_boolVar(); printf("%s = %s >= %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr GT  expr		{ $$ = next_boolVar(); printf("%s = %s > %s;\n",  $$, $1, $3); free($1);  free($3); }
+	| expr EQ  expr		{ $$ = next_boolVar(); printf("%s = %s == %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr NEQ expr		{ $$ = next_boolVar(); printf("%s = %s != %s;\n", $$, $1, $3); free($1);  free($3); }
 	;
 
-//todo bisogna modificare mknodeB semplicemente creando una nuova variabile temporanea ma nn serve salvare tutte le operazioni
-comp	: expr LT expr		{ $$ = mknodeB("LT", $1, $3);
-					printf("%s = %s < %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr LE expr		{ $$ = mknodeB("LE", $1, $3); 
-					printf("%s = %s <= %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr GE expr		{ $$ = mknodeB("GE", $1, $3); 
-					printf("%s = %s >= %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr GT expr		{ $$ = mknodeB("GT", $1, $3); 
-					printf("%s = %s > %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr EQ expr		{ $$ = mknodeB("EQ", $1, $3); 
-					printf("%s = %s == %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr NEQ expr		{ $$ = mknodeB("NEQ", $1, $3); 
-					printf("%s = %s != %s;\n", $$->addr, $1->addr, $3->addr); }
-	;
-
-expr	: expr '+' expr		{ $$ =  mkExpNode("+", $1, $3); 
-					printf("%s = %s + %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr '-' expr		{ $$ =  mkExpNode("-", $1, $3); 
-					printf("%s = %s - %s;\n", $$->addr, $1->addr, $3->addr); } 
-	| expr '/' expr		{ $$ =  mkExpNode("/", $1, $3); 
-					printf("%s = %s / %s;\n", $$->addr, $1->addr, $3->addr); }
-	| expr '*' expr		{ $$ = mkExpNode("*", $1, $3); 
-					printf("%s = %s * %s;\n", $$->addr, $1->addr, $3->addr); }
+expr	: expr '+' expr		{ $$ = next_doubleVar(); printf("%s = %s + %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr '-' expr		{ $$ = next_doubleVar(); printf("%s = %s - %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr '/' expr		{ $$ = next_doubleVar(); printf("%s = %s / %s;\n", $$, $1, $3); free($1);  free($3); }
+	| expr '*' expr		{ $$ = next_doubleVar(); printf("%s = %s * %s;\n", $$, $1, $3); free($1);  free($3); }
 	| '(' expr ')'		{ $$ = $2; }
-	| '-' expr %prec UMINUS { char * temp = next_doubleVar();
-					struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-					n->addr = temp;
-					n->value = -($2->value);
-					$$ = n; 
-					printf("%s = -%s\n", $$->addr, $2->addr); 
-				}
-
-	| DOUBLE		{ 	
-					$$ = mkLeaf($1);
-					//printf("%s = %f\n", $$->addr, $1 );
-				}
+	| '-' expr %prec UMINUS { $$ = next_doubleVar(); printf("%s = -%s;\n", $$, $2); free($2); }
+	| DOUBLE		{ $$ = doubleToString($1); }
 	| var			{ $$ = $1; }
 	;
 
-//todo add printf instruction .. prevedere un'istruzione di print
+var 	:  ID			{ $$ = $1; }
+	;
 
-
+printf  : PRINT '(' var ')'	{ printf("printf(\"var: %s = %sf \\n\", %s);\n", $3, "%", $3); free($3); }
+	;
 
 %%
 
@@ -199,126 +162,50 @@ void yyerror(char *s){
 	fprintf(stderr, "Error: %s\n", s);
 }
 
-struct Node * mkVarNode(char * name, double value){
-	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-	n->addr = name;
-	n->value = value;
-	return n;
-}
 
-struct Node * mkLeaf(double n1){
-	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
+char * doubleToString(double n1){
 	char *  buffer = (char * ) malloc(sizeof(char) * 100);
 	sprintf(buffer, "%.2f", n1);
-	n->addr = buffer;
-	n->value = n1;
-	return n;
-
-}
-
-//todo comment
-struct StatementNode * mkStatement(char * next){
-        struct StatementNode * n = (struct StatementNode * ) malloc(sizeof(struct StatementNode) * 1);
-        n->next = next;    
-        n->assegnato = 1;    
-        return n;
+	return buffer;
 }
 
 //todo comment
 struct StatementNode * mkStat(){
-        struct StatementNode * n = (struct StatementNode * ) malloc(sizeof(struct StatementNode) * 1);
-        n->assegnato = 0;    
+        
+	struct StatementNode * n = (struct StatementNode * ) malloc(sizeof(struct StatementNode) * 1);
         return n;
 }
-
 
 //todo add comment
-struct BoolNode * mkBoolNode(char * temp, char * t, char * f){
+struct BoolNode * mkBoolNode(char * temp){
 
         struct BoolNode * n = (struct BoolNode * ) malloc(sizeof(struct BoolNode) * 1);
-        n->addr = temp;        
-        n->t = t;
-        n->f = f;
-
+        n->addr = temp;      
         return n;
 }
 
-struct WhileNode * mkWhileNode(){
-
-        struct WhileNode * n = (struct WhileNode * ) malloc(sizeof(struct WhileNode) * 1);
-                
-        return n;
-}
-
-//function to create an expression node
-struct Node * mkExpNode(char * tipo, struct Node * n1, struct Node * n2){
-	
-	char * temp = next_doubleVar();
-	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-	n->addr = temp;
-	if(strcmp(tipo, "+") == 0){
-		n->value = (n1->value) + (n2->value);
-		
-	} else if(strcmp(tipo, "-") == 0){
-		n->value = (n1->value) - (n2->value);
-	} else if(strcmp(tipo, "*") == 0){
-		n->value = (n1->value) * (n2->value);
-	} else if(strcmp(tipo, "/") == 0){
-		n->value = (n1->value) / (n2->value);
-	} else {
-		printf("Error match in mkExpNode");
-	}
-	return n;
-}
-
-struct Node * mknodeNotB(struct Node * n1){
-	char * temp = next_boolVar();
-	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-	n->addr = temp;
-	n->boolean = n1->value;
-	return n;
-}
-
-struct Node * mknodeB(char * tipo, struct Node * n1, struct Node * n2){ 
-	char * temp = next_boolVar();
-	struct Node * n = (struct Node * ) malloc(sizeof(struct Node) * 1);
-	n->addr = temp;
-
-	if(strcmp(tipo, "LT") == 0){
-		n->boolean = n1->value < n2->value;
-	} else if(strcmp(tipo, "LE") == 0){
-		n->boolean = n1->value <= n2->value;
-	} else if(strcmp(tipo, "GT") == 0){
-		n->boolean = n1->value > n2->value;
-	} else if(strcmp(tipo, "GE") == 0){
-		n->boolean = n1->value >= n2->value;
-	} else if(strcmp(tipo, "EQ") == 0){
-		n->boolean = n1->value == n2->value;
-	} else if(strcmp(tipo, "NEQ") == 0){
-		n->boolean = n1->value != n2->value;
-	} else if(strcmp(tipo, "OR") == 0){
-		n->boolean = n1->boolean || n2->boolean;
-	} else if(strcmp(tipo, "AND") == 0){
-		n->boolean = n1->boolean && n2->boolean;
-	} else {
-		printf("Error match in mkNodeB");
-	}
-		
-	return n;
-}
-
+/*
+ *	This function initialize a new boolean temporary variable
+ */
 char * next_boolVar(){
 	char *  temp = next_var();
 	printf("bool %s;\n", temp);
 	return temp;
 }
 
+/*
+ *	This function initialize a new double temporary variable
+ */
 char * next_doubleVar(){
 	char *  temp = next_var();
 	printf("double %s;\n", temp);
 	return temp;
 }
 
+/*
+ *	This function return a new temporary variable string in the form "ti" with i an incremental integer number
+ *	Only for internal use!
+ */
 char * next_var(){
 	char *  buffer = (char * ) malloc(sizeof(char) * 100);
 	snprintf(buffer, sizeof(buffer), "t%d", counter_t);
@@ -326,6 +213,9 @@ char * next_var(){
 	return buffer;
 }
 
+/*
+ *	This function return a new label string in the form "Li" with i an incremental integer number
+ */
 char * next_label(){
 	char *  buffer = (char * ) malloc(sizeof(char) * 100);
 	snprintf(buffer, sizeof(buffer), "L%d", counter_l);

@@ -5,13 +5,13 @@ a = 10;
 
 if( a >= 12 ) { stampa(a); }
 
-while (a < 15 ) {
+while(a < 15 ){
 
 	double b; 
 
 	b = 14;
 
-	while( a < 15 ) {
+	while( a < 15 ){
 	
 		a = a + 1;
 		
@@ -20,6 +20,12 @@ while (a < 15 ) {
 	if( a > 16 ) {
 
 		stampa (b ) ;
+	}else{
+
+	} 
+
+	if(3<2){
+
 	}
 }
 
