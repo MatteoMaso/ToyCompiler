@@ -3,21 +3,21 @@ double a;
 
 a = 10;
 
-if   ( a >= 12 ) { stampa(a); }
+if( a >= 12 ) { stampa(a); }
 
-while ( a < 15 ) {
+while (a < 15 ) {
 
 	double b; 
 
 	b = 14;
 
-	while ( a < 15 ) {
+	while( a < 15 ) {
 	
 		a = a + 1;
 		
 	}
 
-	if ( a > 16 ) {
+	if( a > 16 ) {
 
 		stampa (b ) ;
 	}

@@ -95,7 +95,7 @@ s       : var '=' expr ';'             { $$ = mkStat(); printf("%s = %s;\n", $1-
 while   : WHILE         { $$ = mkWhileNode(); $$->begin = next_label(); printf("%s: ;\n", $$->begin); }
         ;
 
-whileB  : while bexpr   { $$=$1; $$->t = next_label(); $$->f = next_label(); printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s: ;\n", $2->addr, $$->t, $$->f, $$->t); }
+whileB  : while bexpr ')'  { $$=$1; $$->t = next_label(); $$->f = next_label(); printf("if( %s == 1 ) goto %s;\ngoto %s;\n%s: ;\n", $2->addr, $$->t, $$->f, $$->t); }
 
 
 if_statement : if_else corpo { $$ = $1; }
@@ -106,8 +106,8 @@ if_else : if_bool ELSE          { $$ = mkStatement(next_label()); printf("goto %
                
         ;
 
-if_bool  : IF '(' bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $3->addr, $3->t, $3->f); printf("%s: ;\n", $3->t); } 
-                corpo           { $$ = mkStatement($3->f); }
+if_bool  : IF  bexpr ')'     { printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $2->addr, $2->t, $2->f); printf("%s: ;\n", $2->t); } 
+                corpo          { $$ = mkStatement($2->f); }
         ;
 
 corpo   : '{' s1 '}'                
