@@ -7,49 +7,43 @@
 
 %s 	STARTCOMMENT
 
-digit     [0-9]
-digitnz   [1-9]   
-uc        [A-Z]    
-lc        [a-z]    
-letter	  {uc}|{lc} 
-ws        [ \t\n]
-eoi       [;]
-sc        [_$@-]
-newline	  [\n]
-startcomment    "/*"
-endcomment	"*/"
-startOneLineComment "//"
+digit     		[0-9]
+uc        		[A-Z]    
+lc        		[a-z]    
+letter	  		{uc}|{lc} 
+ws        		[ \t\n]
+eoi       		[;]
+sc        		[_$@-]
+newline	  		[\n]
+startcomment    	"/*"
+endcomment		"*/"
+startOneLineComment 	"//"
 
 
 id          	{lc}({letter}*|{digit}*|{sc}*)*
-number      	{digitnz}|{digit}*    
-fract       	[0-9]+\.?|[0-9]*\.[0-9]+
-double	  	([ \t])*double[ ]+
-if		([ \t])*if
-else		([ \t])*else([ \t])*
-while		([ \t])*while([ \t])*
-stampa		([ \t])*stampa([ \t])*
-pippo 		[1-9][0-9]*
+fract       	{digit}+(\.{digit}+)?
+
+
 
 comment         [^*|\n]
 oneLineComment  {startOneLineComment}(.)*{newline}
 
 %% /*---------------------------------------------------REGOLE------------------------------------*/
 
-{oneLineComment} 		{ }
+
 {startcomment}			{ BEGIN STARTCOMMENT; }
 <STARTCOMMENT>{comment}* 	{ }
-<STARTCOMMENT>"*"	 	{ }
+<STARTCOMMENT>("*")|("||")	{ }
 <STARTCOMMENT>{endcomment} 	{ BEGIN 0; }
+{oneLineComment} 		{ }
 
-
-{double}		{ return DOUBLE; }
-{pippo}{ws}*","		{}
 [ \t\n]			{ /* skip blanks */ }
+
+"double"		{ return TYPE_DOUBLE; }
 "if"		 	{ return IF; }
 "else"		 	{ return ELSE; }
 "while"			{ return WHILE; }
-{stampa}		{ return PRINT; }
+"stampa"		{ return PRINT; }
 "&&"			{ return AND; }
 "||"			{ return OR; }
 "!"			{ return NOT; }

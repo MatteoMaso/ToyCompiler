@@ -15,7 +15,6 @@
         struct StatementNode * mkStat();
         struct StatementNode{
                 char * next;
-                //int assegnato;
         };
 
         struct BoolNode * mkBoolNode(char * temp);
@@ -37,15 +36,15 @@
 
 %token	<val>	   DOUBLE
 %token  <string>   ID
-%token	IF ELSE WHILE PRINT 
+%token	IF ELSE WHILE PRINT TYPE_DOUBLE
 
 %type   <string> var expr comp M1
 %type   <boolNode> bexpr  while W1 W2
 %type   <sNode> s s1 if_statement if_bool if_else M2 corpo
 
+%left   '+' '-' 
+%left	'*' '/' 
 
-%left	'+' '-'
-%left	'*' '/'
 %right  UMINUS
 %left	OR
 %left	AND
@@ -64,8 +63,8 @@ s1      : s1 s                  { }
         ;
 
 s       : var '=' expr ';'        { printf("%s = %s;\n", $1, $3); 		free($1); free($3);  }
-        | DOUBLE var ';'          { printf("double %s;\n", $2);   		free($2);            }
-	| DOUBLE var '=' expr ';' { printf("double %s = %s;\n", $2, $4); 	free($2), free($4);  }
+        | TYPE_DOUBLE var ';'          { printf("double %s;\n", $2);   		free($2);            }
+	| TYPE_DOUBLE var '=' expr ';' { printf("double %s = %s;\n", $2, $4); 	free($2), free($4);  }
         | if_statement            { printf("%s: ;\n", $1->next);  		free($1);            }
         | while  	          { }
 	| printf ';'		  { }
@@ -90,7 +89,7 @@ if_statement : if_else  	{ $$ = $1; }
              | if_bool  	{ $$ = $1; } 
              ;
 
-if_else : if_bool M2 corpo { $$ = $2; free($1); }  
+if_else : if_bool M2 corpo 	{ $$ = $2; free($1); }  
         ;
 
 M2	: ELSE			{ $$ = mkStat(); $$->next = next_label(); printf("goto %s;\n", $$->next); printf("%s: ;\n", $<sNode>0->next); } 
