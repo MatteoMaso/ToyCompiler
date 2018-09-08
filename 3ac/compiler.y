@@ -12,7 +12,7 @@
         int counter_l;
 	char * doubleToString(double n1);
 	
-        struct StatementNode * mkStat();
+        struct StatementNode * mkStat(char * temp);
         struct StatementNode{
                 char * next;
         };
@@ -30,7 +30,6 @@
         struct BoolNode * boolNode;
         struct StatementNode * sNode;
 	double val;
-	int bool; 	// 1 == true, 0 == false
 	char * string;
 }
 
@@ -62,12 +61,12 @@ s1      : s1 s                  { }
         | s                     { }
         ;
 
-s       : var '=' expr ';'        { printf("%s = %s;\n", $1, $3); 		free($1); free($3);  }
-        | TYPE_DOUBLE var ';'          { printf("double %s;\n", $2);   		free($2);            }
-	| TYPE_DOUBLE var '=' expr ';' { printf("double %s = %s;\n", $2, $4); 	free($2), free($4);  }
-        | if_statement            { printf("%s: ;\n", $1->next);  		free($1);            }
-        | while  	          { }
-	| printf ';'		  { }
+s       : var '=' expr ';'        	{ printf("%s = %s;\n", $1, $3); 		free($1); free($3);  }
+        | TYPE_DOUBLE var ';'          	{ printf("double %s;\n", $2);   		free($2);            }
+	| TYPE_DOUBLE var '=' expr ';' 	{ printf("double %s = %s;\n", $2, $4); 		free($2), free($4);  }
+        | if_statement            	{ printf("%s: ;\n", $1->next);  		free($1);            }
+        | while  	          	{ }
+	| printf ';'		  	{ }
         ;
 
 
@@ -84,7 +83,6 @@ W2	:			{
 W1	: 			{ $$ = mkBoolNode(next_label()); printf("%s: ;\n", $$->addr); }
 	;
 
-
 if_statement : if_else  	{ $$ = $1; }
              | if_bool  	{ $$ = $1; } 
              ;
@@ -92,10 +90,10 @@ if_statement : if_else  	{ $$ = $1; }
 if_else : if_bool M2 corpo 	{ $$ = $2; free($1); }  
         ;
 
-M2	: ELSE			{ $$ = mkStat(); $$->next = next_label(); printf("goto %s;\n", $$->next); printf("%s: ;\n", $<sNode>0->next); } 
+M2	: ELSE			{ $$ = mkStat(next_label()); printf("goto %s;\n", $$->next); printf("%s: ;\n", $<sNode>0->next); } 
 	;
 
-if_bool : IF '(' bexpr ')' M1  corpo  { $$ = mkStat(); $$->next = $3->f; } //bisognerebbe mettere il free sul bexpr ma nn si può perchè $3->f
+if_bool : IF '(' bexpr ')' M1  corpo  { $$ = mkStat($3->f); } //bisognerebbe mettere il free sul bexpr ma nn si può perchè $3->f
         ;
 
 M1	: 			{  printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $<boolNode>-1->addr, $<boolNode>-1->t, $<boolNode>-1->f); 					   printf("%s: ;\n", $<boolNode>-1->t);
@@ -169,10 +167,11 @@ char * doubleToString(double n1){
 }
 
 //todo comment
-struct StatementNode * mkStat(){
+struct StatementNode * mkStat(char * temp){
         
 	struct StatementNode * n = (struct StatementNode * ) malloc(sizeof(struct StatementNode) * 1);
-        return n;
+	n->next = temp;        
+	return n;
 }
 
 //todo add comment

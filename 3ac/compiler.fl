@@ -22,9 +22,6 @@ startOneLineComment 	"//"
 
 id          	{lc}({letter}*|{digit}*|{sc}*)*
 fract       	{digit}+(\.{digit}+)?
-
-
-
 comment         [^*|\n]
 oneLineComment  {startOneLineComment}(.)*{newline}
 
