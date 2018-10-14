@@ -17,11 +17,11 @@ Conditional istructions: if - elseif - else
 
 Iterations istruction: 
 
-        cycle (condition){
+        while (condition){
 		istruzioni;
 	}
 
-Print instruction: display(number); 
+Print instruction: stampa(number); 
 
 Keywords: cycle, if, else,  goto(not allowed)
 
