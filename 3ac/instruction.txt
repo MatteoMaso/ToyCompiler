@@ -1,8 +1,0 @@
-comandi: 
-
-./go.sh
-./compiler.out < input_example.txt > hello.c
-gcc -o hello hello.c
-./hello
-
-

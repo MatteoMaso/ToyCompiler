@@ -1,0 +1,31 @@
+Language:
+
+One instruction for line, each line must be finished with ';'
+There are not limitation in the usage of whitespace, newline and tab.
+
+Math instructions:  +, -, *, /, round brackets are allowed.
+Comparison instructions: <, >, <= , >=, ==, !=, !, |, && round brackets are allowed.
+Conditional istructions: if - elseif - else
+
+	if (condition) {
+        	istruzioni;
+	}
+
+       	else {
+		...
+	}
+
+Iterations istruction: 
+
+        cycle (condition){
+		istruzioni;
+	}
+
+Print instruction: display(number); 
+
+Keywords: cycle, if, else,  goto(not allowed)
+
+Multi line comment: /* ... */
+Single line comment: // ...
+
+Also, you can find some example into the Example folder
