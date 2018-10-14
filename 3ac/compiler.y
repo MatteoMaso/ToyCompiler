@@ -70,7 +70,6 @@ s       : var '=' expr ';'        	{ printf("%s = %s;\n", $1, $3); 		free($1); f
         ;
 
 
-
 while  	: WHILE W1 bexpr W2 corpo { printf("goto %s;\n%s: ;\n", $4->addr, $4->f); free($3); free($4); }
 	;
 
@@ -93,7 +92,7 @@ if_else : if_bool M2 corpo 	{ $$ = $2; free($1); }
 M2	: ELSE			{ $$ = mkStat(next_label()); printf("goto %s;\n", $$->next); printf("%s: ;\n", $<sNode>0->next); } 
 	;
 
-if_bool : IF '(' bexpr ')' M1  corpo  { $$ = mkStat($3->f); } //bisognerebbe mettere il free sul bexpr ma nn si può perchè $3->f
+if_bool : IF '(' bexpr ')' M1  corpo  { $$ = mkStat($3->f); } //qui dovremmo andare a creare una copia dell f in modo da dereferenziare il $3
         ;
 
 M1	: 			{  printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $<boolNode>-1->addr, $<boolNode>-1->t, $<boolNode>-1->f); 					   printf("%s: ;\n", $<boolNode>-1->t);
@@ -103,7 +102,7 @@ M1	: 			{  printf("if ( %s == 1 ) goto %s;\ngoto %s;\n", $<boolNode>-1->addr, $<
 corpo   : '{' s1 '}'            { }   
         | '{'    '}'            { }    
         ;
-
+				//abbiamo tante label perchè le generiamo a prescindere ma poi non è detto che le andiamo ad utilizzare sempre
 bexpr	: bexpr OR  bexpr 	{ $$ = mkBoolNode(next_boolVar()); $$->t = $1->t, $$->f = $1->f;
 					printf("%s = %s || %s;\n", $$->addr, $1->addr, $3->addr);  }
 	| bexpr AND bexpr	{ $$ = mkBoolNode(next_boolVar()); $$->t = $1->t, $$->f = $1->f;
@@ -128,7 +127,7 @@ expr	: expr '+' expr		{ $$ = next_doubleVar(); printf("%s = %s + %s;\n", $$, $1,
 	| expr '*' expr		{ $$ = next_doubleVar(); printf("%s = %s * %s;\n", $$, $1, $3); free($1);  free($3); }
 	| '(' expr ')'		{ $$ = $2; }
 	| '-' expr %prec UMINUS { $$ = next_doubleVar(); printf("%s = -%s;\n", $$, $2); free($2); }
-	| DOUBLE		{ $$ = doubleToString($1); }
+	| DOUBLE		{ $$ = doubleToString($1); } //tratto sia le stringhe che le variabili come espressioni e le si stampa in stringa
 	| var			{ $$ = $1; }
 	;
 
@@ -166,7 +165,6 @@ char * doubleToString(double n1){
 	return buffer;
 }
 
-//todo comment
 struct StatementNode * mkStat(char * temp){
         
 	struct StatementNode * n = (struct StatementNode * ) malloc(sizeof(struct StatementNode) * 1);
@@ -174,7 +172,6 @@ struct StatementNode * mkStat(char * temp){
 	return n;
 }
 
-//todo add comment
 struct BoolNode * mkBoolNode(char * temp){
 
         struct BoolNode * n = (struct BoolNode * ) malloc(sizeof(struct BoolNode) * 1);

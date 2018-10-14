@@ -5,16 +5,16 @@
 #include "compiler.h"
 %}
 
-%s 	STARTCOMMENT
+%s 	STARTCOMMENT 
 
 digit     		[0-9]
 uc        		[A-Z]    
 lc        		[a-z]    
 letter	  		{uc}|{lc} 
 ws        		[ \t\n]
-eoi       		[;]
+eoi       		[;] 
 sc        		[_$@-]
-newline	  		[\n]
+newline	  		[\n] 
 startcomment    	"/*"
 endcomment		"*/"
 startOneLineComment 	"//"
@@ -34,7 +34,7 @@ oneLineComment  {startOneLineComment}(.)*{newline}
 <STARTCOMMENT>{endcomment} 	{ BEGIN 0; }
 {oneLineComment} 		{ }
 
-[ \t\n]			{ /* skip blanks */ }
+{ws}			{ /* skip blanks */ }
 
 "double"		{ return TYPE_DOUBLE; }
 "if"		 	{ return IF; }
@@ -50,10 +50,6 @@ oneLineComment  {startOneLineComment}(.)*{newline}
 ">="			{ return GE; }
 "=="			{ return EQ; }
 "!="			{ return NEQ; }
-"+"             	{ return '+'; }
-"-"			{ return '-'; }
-"*"			{ return '*'; }
-"/"			{ return '/'; }
-{id}			{ yylval.string = strdup(yytext); return ID; }
+{id}			{ yylval.string = strdup(yytext); return ID; } //strdup dovrebbe tornare il puntatore
 {fract}			{ yylval.val = atof(yytext); return DOUBLE; }
 \n|.			{ return yytext[0]; }

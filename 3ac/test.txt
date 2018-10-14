@@ -1,0 +1,23 @@
+double x;
+x = 12;
+double i;
+i = 1;
+double j;
+while( i <= 52 ) {
+  if( 7 <= i && i <= 19 || 29 <= i && i <= 41 ) {
+    j = 1;
+    while( j <= 23 ) {
+      x = x + 7;
+      j = j + 1;
+    }
+  }
+  else {
+    j = 1;
+    while( j <= 17) {
+      x = x + 11;
+      j = j + 1;
+    }
+  }
+  i = i + 1;
+}
+stampa(x);

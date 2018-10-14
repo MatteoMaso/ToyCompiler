@@ -1,20 +1,10 @@
-# Compilatori
+# Toy compiler
 
-Dentro alla cartella DOC sono presenti le specifiche del linguaggio
+The purpose of this project is to learn the bisics of a compiler by implementing a compiler for a new programming language.
+You can find the specific of the programming language into the doc folder. 
 
-#Compilazione ed esecuzione in ambiente linux:
-- lex -o anayzer.yy.c anayzer.fl
+## How it works in an Linux environment:
+- lex -o anayzer.yy.c analyzer.fl
 - gcc anayzer anayzer.yy.c -lfl
-- ./anayzer.out < file_prova
-
-#Compilazione ed esecuzione in ambienti microsoft:
-- so che bisogna linkare le librarie con -L "C:\MinGw\lib"... 
-
-#Bison
-bisonExample.y è un file di esempio che spiega come usare bison ...
-si fa partire con:
-- bison bisonExample.y
-- gcc bisonExample.tab.c
-- ./a.out
-
+- ./anayzer.out < your_code_file
 
